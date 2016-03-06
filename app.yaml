@@ -1,0 +1,15 @@
+application: asper-slackbot
+version: 1
+runtime: php55
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /img
+  static_dir: assets/img
+
+- url: /manual
+  script: manual.php
+
+- url: /.*
+  script: index.php
