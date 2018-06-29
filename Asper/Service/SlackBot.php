@@ -145,7 +145,8 @@ class SlackBot {
 			'username' 		=> $this->botProfile['name'],
 			'text' 			=> $msg
 		);
-		return 'payload='.json_encode($payLoad);
+
+		return 'payload='.urlencode(json_encode($payLoad));
 	}
 
 	public function sendMsg($msg){
@@ -155,6 +156,7 @@ class SlackBot {
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-type: application/json']);
 		$result = curl_exec($ch);
 		curl_close($ch);
 
