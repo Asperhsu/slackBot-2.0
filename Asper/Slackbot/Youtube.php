@@ -8,11 +8,11 @@ use Asper\Service\SlackBot;
 class Youtube implements SlackBotable{
 
 	protected $entryPoint = "https://www.googleapis.com/youtube/v3/search";
-	protected $apiKey = "AIzaSyAGSeg2Mnb5tyYI6eb2LBxi8AF52y77-zc";
+	protected $apiKey;
 	protected $maxItems = 10;
-	
-	public function __construct(){		
-		
+
+	public function __construct(){
+		$this->apiKey = getenv('YOUTUBE_API_KEY');
 	}
 
 	public function register(){
@@ -36,13 +36,13 @@ class Youtube implements SlackBotable{
 		}
 
 		$q = implode('+', $commands);
-		
+
 		if( !strlen($q) ){
 			$msg = " 點歌使用說明: youtube|點歌 `關鍵字`";
 			return $slackBot->sendMsgforGAE($msg);
 		}
 
-		//check user 
+		//check user
 		$userID = $slackBot->user_id;
 		if( is_numeric($q) AND $this->isUserSearched($userID) ){
 			$items = $this->getUserLastSearch($userID);
@@ -50,7 +50,7 @@ class Youtube implements SlackBotable{
 
 			$msg = $this->youtubeVideoLink($item);
 			return $slackBot->sendMsgforGAE($msg);
-		}			
+		}
 
 		if( in_array('first', $parameter) ){
 			$msg = $this->searchFirstOne($q);
@@ -58,7 +58,7 @@ class Youtube implements SlackBotable{
 		}
 
 		$msg = $this->search($q, $userID);
-		return $slackBot->sendMsgforGAE($msg);		
+		return $slackBot->sendMsgforGAE($msg);
 	}
 
 	protected function getResponse($q){
@@ -112,7 +112,7 @@ class Youtube implements SlackBotable{
 	protected function itemsProcesser($q, Array $response){
 		$items = $response['items'];
 
-		
+
 
 		if( !count($items) ){
 			return sprintf("%s Not Found", $q);
@@ -129,15 +129,15 @@ class Youtube implements SlackBotable{
 		$msg[] = sprintf('*Search `%s`*', $q);
 
 		$recordsCnt = count($items) > $this->maxItems ? $this->maxItems : count($items);
-		
+
 		for($i=0; $i<$recordsCnt; $i++){
 			$item = $items[$i];
 			$msg[] = sprintf("%02d: %s", $i+1, $this->youtubeVideoLink($item));
 		}
 
 		$msg[] = "請繼續以 點歌|youtube `號碼`";
-		
-		return implode("\n", $msg);		
+
+		return implode("\n", $msg);
 	}
 
 	protected  function errorHandler(Array $response){
